@@ -1,0 +1,184 @@
+---
+title: "Fifa_Ranking"
+author: "Rasaq Banjo"
+date: "01/01/2024"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+```
+
+```{r}
+# Read the dataset
+fifa_rankings <- read.csv("~/Downloads/Fifa ranking/fifa_ranking.csv") 
+
+```
+
+```{r}
+# Explore the dataset
+head(fifa_rankings) # Display the first few rows
+```
+
+```{r}
+
+summary(fifa_rankings) # Summary statistics of the dataset
+```
+
+```{r}
+
+str(fifa_rankings) # Structure of the dataset
+```
+
+```{r}
+# Convert date column to Date format
+fifa_rankings$date <- as.Date(fifa_rankings$rank_date, format="%Y-%m-%d")
+```
+
+```{r}
+# Visualize team ranking evolution over the years
+ggplot(fifa_rankings, aes(x = date, y = rank, group = country_full, color = country_full)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Team Ranking Evolution Over the Years", x = "Year", y = "Rank")
+
+```
+```{r}
+# Analyzing team consistency based on rank variability
+team_consistency <- fifa_rankings %>%
+  group_by(country_full) %>%
+  summarise(Consistency = sd(rank, na.rm = TRUE)) %>%
+  arrange(Consistency)
+print(team_consistency)
+
+```
+
+# Identifying the most and least consistent teams
+```{r}
+
+#Most Consistent
+most_consistent <- head(team_consistency)
+print(most_consistent)
+
+```
+
+```{r}
+#Least Consistent
+least_consistent <- tail(team_consistency)
+print(least_consistent)
+```
+
+```{r}
+# Visualization of team consistency
+ggplot(team_consistency, aes(x = reorder(country_full, Consistency), y = Consistency)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  coord_flip() +
+  labs(title = "Team Consistency in FIFA Rankings", x = "Country", y = "Consistency (Standard Deviation)")
+
+```
+
+
+```{r}
+# Analyzing confederation strengths
+confederation_strength <- fifa_rankings %>%
+  group_by(confederation) %>%
+  summarise(AverageRank = mean(rank, na.rm = TRUE)) %>%
+  arrange(AverageRank)
+```
+
+
+```{r}
+# Visualizing confederation strengths
+ggplot(confederation_strength, aes(x = confederation, y = AverageRank)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Confederation Strengths by Average Rank", x = "Confederation", y = "Average Rank")
+
+```
+```{r}
+# Dominance analysis
+# A simple measure could be the number of times a team has been in the top 10
+team_dominance <- fifa_data %>%
+  filter(rank <= 10) %>%
+  group_by(country_full) %>%
+  summarise(Times_Top_10 = n())
+```
+
+```{r}
+# Visualization of team dominance
+ggplot(team_dominance, aes(x = reorder(country_full, Times_Top_10), y = Times_Top_10)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  coord_flip() +
+  labs(title = "Team Dominance in FIFA Rankings (Top 10 Appearances)", x = "Country", y = "Number of Times in Top 10")
+```
+
+
+```{r}
+write.csv(team_consistency, "~/Downloads/Fifa ranking/team_consistency.csv")
+```
+
+```{r}
+
+write.csv(confederation_strength, "~/Downloads/Fifa ranking/confederation_strength.csv")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
